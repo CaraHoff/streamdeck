@@ -6,7 +6,6 @@ import de.carahoff.streamdeck.event.KeyListener;
 
 public interface StreamDeck extends AutoCloseable {
 
-
     /**
      * Returns the number of keys the StreamDeck has
      * 
@@ -73,5 +72,4 @@ public interface StreamDeck extends AutoCloseable {
      *            brightness in percent
      */
     public void setBrightness(int percentBrightness);
-
 }

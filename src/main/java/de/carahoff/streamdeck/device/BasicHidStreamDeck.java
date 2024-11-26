@@ -122,7 +122,6 @@ public abstract class BasicHidStreamDeck implements StreamDeck {
         g2d.dispose();
 
         setImage(keyIndex, img);
-
     }
 
     @Override
@@ -140,7 +139,6 @@ public abstract class BasicHidStreamDeck implements StreamDeck {
 
     @Override
     public void setImage(int keyIndex, Image img) {
-
         if (keyIndex >= getKeys() || keyIndex < 0) {
             throw new IllegalArgumentException("Key Index out of bounds");
         }
@@ -161,8 +159,8 @@ public abstract class BasicHidStreamDeck implements StreamDeck {
         boolean lastPage = false;
         while (page < pageCount) {
             lastPage = (page == pageCount - 1);
-            byte[] payload = imageData.page(page);
 
+            byte[] payload = imageData.page(page);
             byte[] header = imagePageHeader(page, translateKeyIndex(keyIndex, getColumns()), payload.length, lastPage);
 
             System.arraycopy(header, 0, data, 0, header.length);
@@ -298,10 +296,7 @@ public abstract class BasicHidStreamDeck implements StreamDeck {
                         emitKeyEvent(keyEvent);
                 }
                 keyStates = newKeyStates;
-
             }
-
         }
-
     }
 }

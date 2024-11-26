@@ -18,18 +18,13 @@ public class StreamDeckMK2 extends BasicHidStreamDeck {
     private static final int PADDING = 16;
     private static final int IMAGE_PAGE_SIZE = 1024;
     private static final int IMAGE_PAGE_HEADER_SIZE = 8;
-
     private static final int FEATURE_REPORT_SIZE = 32;
     private static final int FIRMWARE_OFFSET = 6;
-
     private static final int KEY_STATE_OFFSET = 4;
 
     private static final byte[] GET_FIRMWARE_COMMAND = new byte[] { 0x05 };
-
     private static final byte[] SET_BRIGHTNESS_COMMAND = new byte[] { 0x03, 0x08 };
-
     private static final byte[] RESET_COMMAND = new byte[] { 0x03, 0x02 };
-
     private static final BitSet KEY_STATES = new BitSet(KEYS);
 
     public StreamDeckMK2(HidDevice device) {

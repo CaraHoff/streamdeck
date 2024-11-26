@@ -11,8 +11,8 @@
 - No need for external Stream Deck software
 
 ## Acknowledgments
-
-This library is based on two  open-source projects:
+This library uses hid4java and jna (see [pom.xlm](./pom.xml) for the detailed version). 
+It draws heavy inspiration from these open-source projects:
 
 - [StreamDeckCore](https://github.com/VVEIRD/StreamDeckCore/tree/master?tab=readme-ov-file) by VVEIRD
 - [streamdeck](https://github.com/muesli/streamdeck/tree/master?tab=readme-ov-file) by muesli
@@ -38,6 +38,14 @@ To use the `streamdeck` library in your project, you can include it as a Maven d
 Here’s a quick example of how to use the library to connect with a Stream Deck, manage key events, and handle device attachment/detachment:
 
 ```java
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.util.*;
+import javax.imageio.ImageIO;
+import de.carahoff.streamdeck.device.*;
+import de.carahoff.streamdeck.elgato.*;
+import de.carahoff.streamdeck.event.*;
+
 public class Application {
 
     public static void main(String[] args) throws Exception {

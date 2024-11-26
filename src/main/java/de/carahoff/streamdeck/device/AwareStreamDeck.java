@@ -61,17 +61,16 @@ public class AwareStreamDeck implements StreamDeck {
         this.keyImageMap = new HashMap<>();
         for(int i =0; i< getKeys(); i++) {
             keyImageMap.put(i, null); //TODO CH: Could add method "Set to Black" to set each image to black instead of null
-
         }
     }
 
     @Override
     public void close() throws Exception {
         synchronized (this) {
-        if (timer != null) {
-            timer.cancel();
+            if (timer != null) {
+                timer.cancel();
+            }
         }
-    }
         executorService.shutdown();
         if (attachedDeck != null) {
             attachedDeck.close();
@@ -104,7 +103,6 @@ public class AwareStreamDeck implements StreamDeck {
                 }
             }
             setSleepCountdown();
-
         }
     }
 
@@ -116,7 +114,6 @@ public class AwareStreamDeck implements StreamDeck {
             }
             this.listeners.add(listener);
         }
-
     }
 
     @Override
@@ -154,24 +151,23 @@ public class AwareStreamDeck implements StreamDeck {
         }
         wakeAndResetSleepCountdownt();
         synchronized (keyImageMap) {
-        if (attachedDeck != null) {
-            attachedDeck.setImage(keyIndex, img);
+            if (attachedDeck != null) {
+                attachedDeck.setImage(keyIndex, img);
+            }
+            keyImageMap.put(keyIndex, img);
         }
-        keyImageMap.put(keyIndex, img);
-    }
     }
 
     @Override
     public void setImage(Image img) {
         wakeAndResetSleepCountdownt();
         synchronized (keyImageMap) {
-
-        if (attachedDeck != null) {
-            attachedDeck.setImage(img);
-        }
-        for (int i = 0; i < getKeys(); i++) {
-            keyImageMap.put(i, img);
-        }
+            if (attachedDeck != null) {
+                attachedDeck.setImage(img);
+            }
+            for (int i = 0; i < getKeys(); i++) {
+                keyImageMap.put(i, img);
+            }
     }
     }
 
@@ -189,7 +185,6 @@ public class AwareStreamDeck implements StreamDeck {
             attachedDeck.setBrightness(percentBrightness);
         }
         currentBrightness = percentBrightness;
-
     }
     }
 
@@ -201,11 +196,10 @@ public class AwareStreamDeck implements StreamDeck {
             percentBrightness = 0;
         }
         synchronized (this) {
-        if (attachedDeck != null) {
-            attachedDeck.setBrightness(percentBrightness);
-        }
+            if (attachedDeck != null) {
+                attachedDeck.setBrightness(percentBrightness);
+            }
         currentBrightness = percentBrightness;
-
     }
 }
 
@@ -214,7 +208,6 @@ public class AwareStreamDeck implements StreamDeck {
             return sleepAware;
         }
     }
-
 
     public void setSleepAware(boolean sleepAware) {
         synchronized (this) {
@@ -240,7 +233,6 @@ public class AwareStreamDeck implements StreamDeck {
             }
             fade(sleepBrightness, sleepFadeDuration);
         }
-
     }
 
     private void setSleepCountdown() {
@@ -257,11 +249,10 @@ public class AwareStreamDeck implements StreamDeck {
         //TODO CH: think about plausibility checks for sleepTimeout duration?
         synchronized (this) {
         this.sleepTimeoutDuration = duration;
-        if (isSleepAware() && !asleep()) {
-            setSleepCountdown();
+            if (isSleepAware() && !asleep()) {
+                setSleepCountdown();
+            }
         }
-    }
-
     }
 
     public boolean asleep() {
@@ -297,12 +288,10 @@ public class AwareStreamDeck implements StreamDeck {
         if (percentEndBrightness == currentBrightness) {
             return;
         }
-
         double step = (double) (percentEndBrightness - currentBrightness) / duration.toMillis() * FADE_DELAY_MS;
         if (Double.isInfinite(step)) {
             return;
         }
-
         for (double current = currentBrightness;; current += step) {
             if (!((currentBrightness < percentEndBrightness && current < percentEndBrightness) || (currentBrightness > percentEndBrightness && current > percentEndBrightness))) {
                 break;
@@ -319,14 +308,12 @@ public class AwareStreamDeck implements StreamDeck {
             catch (InterruptedException e) {
                 e.printStackTrace();
             }
-    }
-
+        }
     }
 
     public void setSleepFadeDuration(Duration duration) {
         //TODO CH: think about plausibility checks for sleepFadeDuration
         this.sleepFadeDuration = duration;
-
     }
 
     public void setSleepBrightnessValue(int percentBrightness) {
@@ -356,64 +343,61 @@ public class AwareStreamDeck implements StreamDeck {
 
     public void attachDeck(StreamDeck streamDeck) {
         synchronized (this) {
-        if (attachedDeck != null) {
-            try {
-                attachedDeck.close();
+            if (attachedDeck != null) {
+                try {
+                    attachedDeck.close();
+                }
+                catch (Exception e) {
+                    System.out.println("Unable to close previously attached Deck");
+                }
             }
-            catch (Exception e) {
-                System.out.println("Unable to close previously attached Deck");
-            }
-        }
 
-        if (streamDeck.getKeys() != getKeys()) {
-            throw new IllegalArgumentException(String.format("Supplied Deck has different amount of Keys, expected %d Keys", getKeys()));
-        }
-        for (int i = 0; i < getKeys(); i++) {
-            if (keyImageMap.get(i) == null) {
-                streamDeck.clear(i);
+            if (streamDeck.getKeys() != getKeys()) {
+                throw new IllegalArgumentException(String.format("Supplied Deck has different amount of Keys, expected %d Keys", getKeys()));
+            }
+            for (int i = 0; i < getKeys(); i++) {
+                if (keyImageMap.get(i) == null) {
+                    streamDeck.clear(i);
+                }
+                else {
+                    streamDeck.setImage(i, keyImageMap.get(i));
+                }
+            }
+
+            streamDeck.addKeyListener(sleepAwareListener);
+            if (isSleepAware()) {
+                wakeAndResetSleepCountdownt();//Set new timer if deck is sleepaware
             }
             else {
-                streamDeck.setImage(i, keyImageMap.get(i));
+                streamDeck.setBrightness(currentBrightness);
             }
+            this.attachedDeck = streamDeck;
+            //TODO CH: Catch mismatch in pixel size, don't attach when mismatching?-> Problem pixel size not mandatory for StreamDeck (Multiple Key sizes for newer Decks)
         }
-
-        streamDeck.addKeyListener(sleepAwareListener);
-        if (isSleepAware()) {
-            wakeAndResetSleepCountdownt();//Set new timer if deck is sleepaware
-        }
-        else {
-            streamDeck.setBrightness(currentBrightness);
-        }
-
-        this.attachedDeck = streamDeck;
-
-        //TODO CH: Catch mismatch in pixel size, don't attach when mismatching?-> Problem pixel size not mandatory for StreamDeck (Multiple Key sizes for newer Decks)
-    }
     }
 
     public void detachDeck() {
         synchronized (this) {
-        if (attachedDeck != null) {
-            try {
-                attachedDeck.close();
-            }
-            catch (Exception e) {
-                System.out.println("Unable to call close on detached deck");
-            }
-        }
-        attachedDeck = null;
-        if (sleepAware) { //SleepAwareneness is kept on detachment but timer is canceled until reatachment
-            synchronized (this) {
-                if (timer != null) {
-                    timer.cancel();
+            if (attachedDeck != null) {
+                try {
+                    attachedDeck.close();
                 }
-                if (!asleep()) {
-                    sleep();
+                catch (Exception e) {
+                    System.out.println("Unable to call close on detached deck");
                 }
             }
+            attachedDeck = null;
+            if (sleepAware) { //SleepAwareneness is kept on detachment but timer is canceled until reatachment
+                synchronized (this) {
+                    if (timer != null) {
+                        timer.cancel();
+                    }
+                    if (!asleep()) {
+                        sleep();
+                    }
+                }
+            }
         }
-    }
-
     }
 
     public boolean hasAttachedDeck() {

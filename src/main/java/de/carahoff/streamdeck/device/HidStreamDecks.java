@@ -21,7 +21,6 @@ public class HidStreamDecks {
     private static List<HidStreamDeckFactory> factories;
     private static final List<DeviceListener> listeners = new CopyOnWriteArrayList<>();
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-
     private static final HidServices hidServices;
     private static final DeviceController deviceController = new DeviceController();
 
@@ -67,7 +66,6 @@ public class HidStreamDecks {
             }
             listeners.add(listener);
         }
-
     }
 
     public static void removeDeviceListener(DeviceListener listener) {
@@ -90,7 +88,6 @@ public class HidStreamDecks {
         public void hidDeviceAttached(HidServicesEvent event) {
             DeviceEvent deviceEvent = new DeviceEvent(Type.ATTACHED, event.getHidDevice());
             emitDeviceEvent(deviceEvent);
-
         }
 
         @Override
